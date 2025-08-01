@@ -1,52 +1,52 @@
-// HomePage:
-// 1) SearchAppBar 배치
-// 2) 더미 결과를 ListView.builder로 출력
-// ──────────────────────────────────────────────────────────────────────────────
-
+// HomePage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/search_appbar.dart';         // 위젯 임포트
 import '../widgets/location_list_item.dart';   
+import '../viewmodels/location_viewmodel.dart';
 
-/// HomePage: 검색창과 결과 리스트를 보여주는 화면
+
+
 class HomePage extends ConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {     // 더미 데이터 생성: ListView에 표시할 샘플 결과 5개
-  
-    final dummyResults = List.generate(
-      5,
-      (i) => {
-        'title': '지역 $i',
-        'category': '카테고리 $i',
-        'roadAddress': '도로명 주소 $i',
-      },
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locAsync = ref.watch(locationViewModelProvider);
+
 
     return Scaffold(
       appBar: SearchAppBar(              // AppBar: SearchAppBar 위젯을 사용해 검색창 노출
         onSubmitted: (query) {
+         debugPrint('검색어 입력: $query');
+        ref.read(locationViewModelProvider.notifier).search(query);
           // TODO: 검색 API 호출 로직 연동
-          debugPrint('검색어 입력: $query');
         },
       ),
 
       
-      // Body: ListView.builder로 LocationListItem 출력      
-      body: ListView.builder(
-        itemCount: dummyResults.length,
-        itemBuilder: (context, index) {
-          final item = dummyResults[index];
+ // Body: ListView.builder로 LocationListItem 출력      
+   body: locAsync.when(
+   data: (list) {
+    if (list.isEmpty) {
+      return const Center(child: Text('검색 결과가 없습니다.'));
+    }
 
-          return LocationListItem(
-            title: item['title']!,
-            category: item['category']!,
-            roadAddress: item['roadAddress']!,
-          );
-        },
-      ),
+    return ListView.builder(
+     itemCount: list.length,
+      itemBuilder: (c, i) => LocationListItem(
+       title: list[i].title,
+       category: list[i].category,
+       roadAddress: list[i].roadAddress,
+       )  ,
+    );
+   },
+
+loading: () => const Center(child: Text('어디로 갈까요?')), // 로딩 중 메시지
+error: (e, _) => Center(child: Text('Error: $e')),
+     ),
     );
   }
 }
+  
