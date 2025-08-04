@@ -33,15 +33,27 @@ class HomePage extends ConsumerWidget {
       return const Center(child: Text('검색 결과가 없습니다.'));
     }
 
-    return ListView.builder(
-     itemCount: list.length,
-      itemBuilder: (c, i) => LocationListItem(
-       title: list[i].title,
-       category: list[i].category,
-       roadAddress: list[i].roadAddress,
-       )  ,
-    );
-   },
+          return ListView.builder(
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final item = list[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/review',
+                    arguments: item.title,  // 선택된 지역명 전달
+                  );
+                },
+                child: LocationListItem(
+                  title: item.title,
+                  category: item.category,
+                  roadAddress: item.roadAddress,
+                ),
+              );
+            },
+          );
+        },
 
 loading: () => const Center(child: Text('어디로 갈까요?')), // 로딩 중 메시지
 error: (e, _) => Center(child: Text('Error: $e')),
