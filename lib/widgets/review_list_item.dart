@@ -1,6 +1,4 @@
 // lib/widgets/review_list_item.dart
-// 리뷰 리스트 아이템 위젯:
-// 작성자, 작성일, 별점, 내용을 카드 형태로 렌더링합니다.
 
 import 'package:flutter/material.dart';
 
